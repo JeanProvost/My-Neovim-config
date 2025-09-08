@@ -1,0 +1,12 @@
+# ~/.config/nvim/.gitignore
+
+# Ignore files from lazy.nvim plugin manager
+
+/lazy-lock.json
+/lazy/
+
+#General ignores
+
+*.swp
+*.swo
+*~
