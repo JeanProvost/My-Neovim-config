@@ -7,20 +7,46 @@ return {
     config = function()
       local dap = require("dap")
 
+dap.configurations.cs = {
+  {
+    type = "coreclr",
+    name = "launch - netcoredbg", -- Corrected spelling
+    request = "launch",
+    program = function()
+      return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+    end,
+  },
+  {
+    type = "coreclr",
+    name = "attach - container",
+    request = "attach",
+    processId = 1,
+    justMyCode = false, -- Corrected from 'justCode'
+    connect = {
+      hostName = "127.0.0.1",
+      port = 4711,
+    },
+    sourceFileMap = {
+      ["/workspaces"] = "${workspaceFolder}",
+      ["/source"] = "${workspaceFolder}",
+    },
+  },
+}
+
       -- Debugger cleanup
-      local function cleanup_delve_binary()
-        local binary_name = "__debug_bin.exe"
-        local cwd = vim.fn.getcwd()
-        local binary_path = cwd .. "/" .. binary_name
+      -- local function cleanup_delve_binary()
+        -- local binary_name = "__debug_bin.exe"
+        -- local cwd = vim.fn.getcwd()
+        -- local binary_path = cwd .. "/" .. binary_name
 
-        if vim.fn.filereadable(binary_path) == 1 then
-          vim.fn.delete(binary_path)
-          vim.notify("Cleaned up Delve debug binary.", vim.log.levels.INFO)
-        end 
-      end
+        -- if vim.fn.filereadable(binary_path) == 1 then
+          -- vim.fn.delete(binary_path)
+          -- vim.notify("Cleaned up Delve debug binary.", vim.log.levels.INFO)
+        -- end 
+      -- end
 
-      dap.listeners.after.event_terminated["cleanup"] = cleanup_delve_binary
-      dap.listeners.after.event_exited["cleanup"] = cleanup_delve_binary
+      -- dap.listeners.after.event_terminated["cleanup"] = cleanup_delve_binary
+      -- dap.listeners.after.event_exited["cleanup"] = cleanup_delve_binary
 
       -- Keymap for toggling the UI
       vim.keymap.set("n", "<leader>du", function() require("dapui").toggle() end, { desc = "Debug: Toggle UI" })

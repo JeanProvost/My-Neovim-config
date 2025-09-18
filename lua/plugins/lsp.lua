@@ -15,7 +15,13 @@ return {
   -- ## Mason-LSPConfig: bridge between Mason and lspconfig ##
   {
     'williamboman/mason-lspconfig.nvim',
-    dependencies = { 'williamboman/mason.nvim', 'neovim/nvim-lspconfig' },
+    dependencies = { 
+      'williamboman/mason.nvim', 
+      'neovim/nvim-lspconfig',
+      "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
+    },
+    
     config = function()
       require('mason-lspconfig').setup({
         ensure_installed = { 'csharp_ls', 'pyright', 'sqlls', 'tsserver', 'gopls' },
