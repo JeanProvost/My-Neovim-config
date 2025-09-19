@@ -20,3 +20,5 @@ require("lazy").setup("plugins", {
     enabled = false,
   },
 })
+
+require('core.autocmds')

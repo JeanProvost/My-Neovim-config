@@ -1,9 +1,7 @@
+
 -- lua/plugins/lsp.lua
 
 return {
-  -- This file now returns a list of plugins, each in its own table.
-  -- This makes the configuration more robust and readable.
-
   -- ## Mason: for installing LSPs ##
   {
     'williamboman/mason.nvim',
@@ -15,43 +13,75 @@ return {
   -- ## Mason-LSPConfig: bridge between Mason and lspconfig ##
   {
     'williamboman/mason-lspconfig.nvim',
-    dependencies = { 
-      'williamboman/mason.nvim', 
+    dependencies = {
+      'williamboman/mason.nvim',
       'neovim/nvim-lspconfig',
-      "L3MON4D3/LuaSnip",
-      "saadparwaiz1/cmp_luasnip",
     },
-    
     config = function()
       require('mason-lspconfig').setup({
-        ensure_installed = { 'csharp_ls', 'pyright', 'sqlls', 'tsserver', 'gopls' },
+        ensure_installed = { 'csharp_ls', 'pyright', 'lua_ls', 'tsserver', 'gopls' },
       })
     end,
+  },
+
+  -- ## nvim-navic: For breadcrumbs ##
+  {
+    'SmiteshP/nvim-navic',
+    event = "VeryLazy",
+    opts = {
+      lsp = {
+        auto_attach = true,
+      },
+    },
   },
 
   -- ## LSPConfig: the main configuration for language servers ##
   {
     'neovim/nvim-lspconfig',
-    dependencies = { 'williamboman/mason-lspconfig.nvim' },
+    dependencies = {
+      'williamboman/mason-lspconfig.nvim',
+      'hrsh7th/nvim-cmp',
+      'hrsh7th/cmp-nvim-lsp',
+      'SmiteshP/nvim-navic',
+    },
     config = function()
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
       local lspconfig = require('lspconfig')
-      
-      -- Set up keymaps only when an LSP server is attached
+      local navic = require('nvim-navic')
+
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('UserLspConfig', {}),
         callback = function(ev)
-	  vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
-          local opts = { buffer = ev.buf, silent = true }
-          vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-          vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
-          vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-          vim.keymap.set('n', '<leader>d', vim.diagnostic.open_float, { desc = "Show diagnostics" })
+          local client = vim.lsp.get_client_by_id(ev.data.client_id)
+          if client and client.server_capabilities.documentSymbolProvider then
+            navic.attach(client, ev.buf)
+          end
+
+          -- Keymaps for LSP
+          vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = ev.buf, desc = 'LSP: Hover' })
+          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { buffer = ev.buf, desc = 'LSP: Go to Definition' })
+          vim.keymap.set('n', 'gr', vim.lsp.buf.references, { buffer = ev.buf, desc = 'LSP: Go to References' })
+          vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, { buffer = ev.buf, desc = 'LSP: Go to Implementation' })
+          vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { buffer = ev.buf, desc = 'LSP: Code Action' })
+          vim.keymap.set('n', '<leader>cr', vim.lsp.buf.rename, { buffer = ev.buf, desc = 'LSP: Rename' })
+          vim.keymap.set('n', '<leader>cl', '<cmd>LspRestart<cr>', { buffer = ev.buf, desc = 'LSP: Restart' })
+          vim.keymap.set('n', '<leader>cf', function() vim.lsp.buf.format { async = true } end,
+            { buffer = ev.buf, desc = 'LSP: Format Code' })
+          vim.keymap.set('n', '<leader>cd', vim.diagnostic.open_float,
+            { buffer = ev.buf, desc = 'LSP: Show Diagnostics' })
         end,
       })
 
-      -- Loop through servers installed by Mason and set them up
+      -- Auto-format C# on save
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        pattern = '*.cs',
+        callback = function(args)
+          vim.lsp.buf.format({ bufnr = args.buf, async = false, timeout_ms = 2000 })
+        end,
+        desc = 'Format C# files on save',
+      })
+
+      -- Setup all installed servers
       local servers = require('mason-lspconfig').get_installed_servers()
       for _, server_name in ipairs(servers) do
         lspconfig[server_name].setup({
@@ -64,16 +94,24 @@ return {
   -- ## Autocompletion Engine (nvim-cmp) ##
   {
     'hrsh7th/nvim-cmp',
-    dependencies = { 'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path', 'Saghen/blink.cmp', },
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+    },
     config = function()
       local cmp = require('cmp')
-      local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-      cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
-
       cmp.setup({
+        snippet = {
+          expand = function(args)
+            require('luasnip').lsp_expand(args.body)
+          end,
+        },
         sources = {
           { name = 'nvim_lsp' },
-          { name = 'blink' },
+          { name = 'luasnip' },
           { name = 'buffer' },
           { name = 'path' },
         },
@@ -87,3 +125,4 @@ return {
     end,
   },
 }
+

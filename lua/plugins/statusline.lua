@@ -7,7 +7,7 @@ return {
     require('lualine').setup({
       options = {
         -- The theme in the image is tokyonight
-        theme = 'tokyonight', 
+        theme = 'auto', 
         icons_enabled = true,
         -- These are the powerline arrow separators
         component_separators = { left = '', right = ''},
