@@ -3,47 +3,49 @@
 return {
   {
     'CopilotC-Nvim/CopilotChat.nvim',
-    branch = 'main', -- Use the canary branch for the latest features
+    branch = 'main',
+    version = '*',
     dependencies = {
-      { 'github/copilot.vim' }, -- The official Copilot runtime
-      { 'nvim-lua/plenary.nvim' }, -- Useful library for Neovim plugins
+      { 'github/copilot.vim' },
+      { 'nvim-lua/plenary.nvim' },
     },
     opts = {
-      -- No specific options needed to get started, but you can customize here
-      -- For example, to use a vertical split instead of a horizontal one:
-      -- window = {
-      --   layout = 'vertical',
-      -- },
+      window = {
+        layout = 'vertical',
+        position = 'right',
+        width = 0.25,
+      },
     },
-    -- Example keymaps
+
     keys = {
+      {
+        "<leader>cc",
+        "<cmd>CopilotChatToggle<cr>",
+        desc = "CopilotChat - Toggle Chat",
+      },
+
+      -- Ask about the entire workspace
       {
         "<leader>ca",
         function()
-          -- Ask a question about the current buffer's code
-          local input = vim.fn.input("Ask Copilot about the current file: ")
-          if input ~= "" then
-            require("CopilotChat").ask(input, { buffer = "#current" })
-          end
-        end,
-        desc = "CopilotChat - Ask about current file",
-      },
-      {
-        "<leader>cA",
-        function()
-          -- Ask a question about the entire workspace
-          local input = vim.fn.input("Ask Copilot about the workspace: ")
-          if input ~= "" then
-            require("CopilotChat").ask(input, { selection = "@workspace" })
-          end
+          require("CopilotChat").ask(vim.fn.input("Ask Copilot about the workspace: "), { selection = "@workspace" })
         end,
         desc = "CopilotChat - Ask about workspace",
       },
+      -- Explain selected code
       {
         "<leader>ce",
         "<cmd>CopilotChatExplain<cr>",
         mode = "v",
         desc = "CopilotChat - Explain selected code",
+      },
+      -- Ask about specific files
+      {
+        "<leader>cf",
+        function()
+          require("CopilotChat").ask(vim.fn.input("Ask Copilot about files: "), { selection = "@files" })
+        end,
+        desc = "CopilotChat - Ask about files",
       },
     },
   },

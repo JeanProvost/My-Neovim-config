@@ -1,54 +1,61 @@
-
 -- lua/plugins/lsp.lua
 
 return {
   -- ## Mason: for installing LSPs ##
   {
     'williamboman/mason.nvim',
-    config = function()
-      require('mason').setup()
-    end,
+    opts = {},
   },
 
   -- ## Mason-LSPConfig: bridge between Mason and lspconfig ##
   {
     'williamboman/mason-lspconfig.nvim',
-    dependencies = {
-      'williamboman/mason.nvim',
-      'neovim/nvim-lspconfig',
-    },
-    config = function()
-      require('mason-lspconfig').setup({
-        ensure_installed = { 'csharp_ls', 'pyright', 'lua_ls', 'tsserver', 'gopls' },
-      })
-    end,
+    dependencies = { 'williamboman/mason.nvim', 'neovim/nvim-lspconfig' },
+    -- lazy.nvim will automatically call `.setup(opts)` with the table below
+    opts = {
+      -- A list of servers to automatically install
+      ensure_installed = { "lua_ls", "gopls", "csharp_ls", "pyright", "sqlls" },
+      -- The setup for each server
+      handlers = {
+        -- This is the default handler. It is called for every server that is not explicitly handled below.
+        function(server_name)
+          require('lspconfig')[server_name].setup({
+            capabilities = require('cmp_nvim_lsp').default_capabilities(),
+          })
+        end,
+        -- The next handler is for a server that needs custom settings.
+        ["lua_ls"] = function()
+          require('lspconfig').lua_ls.setup({
+            capabilities = require('cmp_nvim_lsp').default_capabilities(),
+            settings = {
+              Lua = {
+                diagnostics = {
+                  globals = { "vim" },
+                },
+              },
+            },
+          })
+        end,
+      }
+    }
   },
 
   -- ## nvim-navic: For breadcrumbs ##
   {
     'SmiteshP/nvim-navic',
-    event = "VeryLazy",
-    opts = {
-      lsp = {
-        auto_attach = true,
-      },
-    },
+    opts = { lsp = { auto_attach = true } },
   },
 
-  -- ## LSPConfig: the main configuration for language servers ##
+  -- ## LSPConfig: This now ONLY handles keymaps and autocommands ##
   {
     'neovim/nvim-lspconfig',
     dependencies = {
-      'williamboman/mason-lspconfig.nvim',
-      'hrsh7th/nvim-cmp',
-      'hrsh7th/cmp-nvim-lsp',
       'SmiteshP/nvim-navic',
     },
     config = function()
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
-      local lspconfig = require('lspconfig')
       local navic = require('nvim-navic')
-
+      -- The setup loops have been moved to mason-lspconfig.
+      -- This section now only contains your personal settings, like keymaps.
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('UserLspConfig', {}),
         callback = function(ev)
@@ -64,30 +71,10 @@ return {
           vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, { buffer = ev.buf, desc = 'LSP: Go to Implementation' })
           vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { buffer = ev.buf, desc = 'LSP: Code Action' })
           vim.keymap.set('n', '<leader>cr', vim.lsp.buf.rename, { buffer = ev.buf, desc = 'LSP: Rename' })
-          vim.keymap.set('n', '<leader>cl', '<cmd>LspRestart<cr>', { buffer = ev.buf, desc = 'LSP: Restart' })
-          vim.keymap.set('n', '<leader>cf', function() vim.lsp.buf.format { async = true } end,
-            { buffer = ev.buf, desc = 'LSP: Format Code' })
           vim.keymap.set('n', '<leader>cd', vim.diagnostic.open_float,
             { buffer = ev.buf, desc = 'LSP: Show Diagnostics' })
         end,
       })
-
-      -- Auto-format C# on save
-      vim.api.nvim_create_autocmd('BufWritePre', {
-        pattern = '*.cs',
-        callback = function(args)
-          vim.lsp.buf.format({ bufnr = args.buf, async = false, timeout_ms = 2000 })
-        end,
-        desc = 'Format C# files on save',
-      })
-
-      -- Setup all installed servers
-      local servers = require('mason-lspconfig').get_installed_servers()
-      for _, server_name in ipairs(servers) do
-        lspconfig[server_name].setup({
-          capabilities = capabilities,
-        })
-      end
     end,
   },
 
@@ -95,25 +82,18 @@ return {
   {
     'hrsh7th/nvim-cmp',
     dependencies = {
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-buffer',
-      'hrsh7th/cmp-path',
-      'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
+      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path',
+      'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip',
     },
     config = function()
       local cmp = require('cmp')
       cmp.setup({
         snippet = {
-          expand = function(args)
-            require('luasnip').lsp_expand(args.body)
-          end,
+          expand = function(args) require('luasnip').lsp_expand(args.body) end,
         },
         sources = {
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'buffer' },
-          { name = 'path' },
+          { name = 'nvim_lsp' }, { name = 'luasnip' },
+          { name = 'buffer' }, { name = 'path' },
         },
         mapping = cmp.mapping.preset.insert({
           ['<C-p>'] = cmp.mapping.select_prev_item(),
@@ -125,4 +105,3 @@ return {
     end,
   },
 }
-
