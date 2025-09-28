@@ -5,7 +5,10 @@ return {
   -- enabled = false,
    -- "baliestri/aura-theme",
   -- name = "nightblossom",
-  "oonamo/ef-themes.nvim",
+ -- "oonamo/ef-themes.nvim",
+ -- "rose-pine/neovim",
+  "rafamadriz/neon",
+  enabled = false,
   lazy = false,
   priority = 1000,
   config = function()
@@ -13,7 +16,9 @@ return {
    -- vim.cmd([[colorscheme aura-dark]])
   -- end
     -- This command sets the colorscheme when Neovim starts
-   vim.cmd.colorscheme("ef-bio")
+
+   -- vim.g.neon_style = "dark"
+  -- vim.cmd.colorscheme("neon")
   end,
 }
 
