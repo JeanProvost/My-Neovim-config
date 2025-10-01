@@ -3,17 +3,19 @@
 return {
   {
     'CopilotC-Nvim/CopilotChat.nvim',
+    enabled = false,
     branch = 'main',
     version = '*',
     dependencies = {
       { 'github/copilot.vim' },
       { 'nvim-lua/plenary.nvim' },
+      { 'hrsh7th/nvim-cmp' },
     },
     opts = {
       window = {
         layout = 'vertical',
         position = 'right',
-        width = 0.25,
+        width = 0.3,
       },
     },
 
