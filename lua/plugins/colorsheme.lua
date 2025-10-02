@@ -1,14 +1,13 @@
 return {
 	-- "EdenEast/nightfox.nvim",
   -- "rijulpaul/nightblossom.nvim",
-  -- "shaunsingh/moonlight.nvim",
+  "shaunsingh/moonlight.nvim",
   -- enabled = false,
    -- "baliestri/aura-theme",
   -- name = "nightblossom",
  -- "oonamo/ef-themes.nvim",
  -- "rose-pine/neovim",
-  "rafamadriz/neon",
-  enabled = false,
+ -- "rafamadriz/neon",
   lazy = false,
   priority = 1000,
   config = function()
