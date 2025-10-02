@@ -23,4 +23,3 @@ require("lazy").setup("plugins", {
 
 require('core.autocmds')
 require('core.options')
-require('moonlight').set()

@@ -8,6 +8,7 @@ return {
  -- "oonamo/ef-themes.nvim",
  -- "rose-pine/neovim",
  -- "rafamadriz/neon",
+  enabled = false,
   lazy = false,
   priority = 1000,
   config = function()

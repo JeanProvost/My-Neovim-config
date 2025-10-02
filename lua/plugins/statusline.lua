@@ -7,13 +7,7 @@ return {
     require('lualine').setup({
       options = {
         -- The theme in the image is tokyonight
-        local custom_moonlight = require('lualine.themes.moonlight')
-
-      custom_moonlight.normal.a = { fg = '#1e1e2e', bg = '#a6e3a1', gui = 'bold' } -- Normal
-      custom_moonlight.insert.a = { fg = '#1e1e2e', bg = '#89b4fa', gui = 'bold' } -- Insert
-      custom_moonlight.visual.a = { fg = '#1e1e2e', bg = '#f38ba8', gui = 'bold' } ustom_moonlight.normal.a = { fg = '#1e1e2e', bg = '#a6e3a1', gui = 'bold' } -- Normal
-      custom_moonlight.insert.a = { fg = '#1e1e2e', bg = '#89b4fa', gui = 'bold' } -- Insert
-      custom_moonlight.visual.a = { fg = '#1e1e2e', bg = '#f38ba8', gui = 'bold' } 
+        theme = 'auto', 
         icons_enabled = true,
         -- These are the powerline arrow separators
         component_separators = { left = '', right = ''},
@@ -38,17 +32,27 @@ return {
               end
               return ''
             end
-          }
+          },
+          {
+            function()
+              return " "
+            end,
+            color = function()
+              local status = require("sidekick.status").get()
+              if status then
+                return status.kind == "Error" and "DiagnosticError" or status.busy and "DiagnosticWarn" or "Special"
+              end
+            end,
+            cond = function()
+              local status = require("sidekick.status")
+              return status.get() ~= nil
+            end,
+          },
         },
         lualine_x = {'encoding', 'fileformat', 'filetype'},
         lualine_y = {'progress'},
         lualine_z = {'location'}
       },
-      require('lualine').setup({
-        options = {
-          theme = custom_moonlight,
-        },
-          })
+    })
   end,
 }
-
