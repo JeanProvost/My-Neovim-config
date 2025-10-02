@@ -5,6 +5,7 @@ return {
   "roobert/palette.nvim",
   enabled = false,
   lazy = false,
+  enabled = false,
   priority = 1000,
   config = function()
     vim.o.background = "dark"
