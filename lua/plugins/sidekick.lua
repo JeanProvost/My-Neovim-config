@@ -10,6 +10,17 @@ return {
       },
     },
   },
+  keymaps = {
+    {
+      "<Esc><Esc>",
+      function ()
+        require("sidekick.cli").hide() end,
+
+        desc = "Hide Sidekick",
+        mode = { "n", "v" },
+
+    },
+  },
   keys = {
     {
       "<tab>",
@@ -49,9 +60,9 @@ return {
     {
       "<leader>ag",
       function()
-        require("sidekick.cli").toggle({ name = "grok", focus = true })
+        require("sidekick.cli").toggle({ name = "gemini", focus = true })
       end,
-      desc = "Sidekick Grok Toggle",
+      desc = "Sidekick Gemini Toggle",
       mode = { "n", "v" },
     },
     {

@@ -22,6 +22,7 @@ vim.opt.timeoutlen = 300
 vim.opt.signcolumn = 'yes'
 vim.opt.termguicolors = true
 vim.opt.completeopt = 'menuone,noselect'
+vim.opt.cursorline = true
 
 -- ===================================================================
 -- THE FIX: Set splitting behavior
