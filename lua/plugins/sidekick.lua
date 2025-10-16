@@ -3,10 +3,11 @@ return {
   {
     "folke/sidekick.nvim",
     opts = {
+      -- add any options here
       cli = {
         mux = {
-          backend = "",
-          enabled = false,
+          backend = "zellij",
+          enabled = true,
         },
       },
     },
@@ -14,12 +15,21 @@ return {
       {
         "<tab>",
         function()
-          if not require("sidekick").next_jump_or_apply() then
-            return "<Tab>"
+          -- if there is a next edit, jump to it, otherwise apply it if any
+          if not require("sidekick").nes_jump_or_apply() then
+            return "<Tab>" -- fallback to normal tab
           end
         end,
         expr = true,
         desc = "Goto/Apply Next Edit Suggestion",
+      },
+      {
+        "<c-.>",
+        function()
+          require("sidekick.cli").focus()
+        end,
+        desc = "Sidekick Switch Focus",
+        mode = { "n", "v" },
       },
       {
         "<leader>aa",
@@ -40,9 +50,9 @@ return {
       {
         "<leader>ag",
         function()
-          require("sidekick.cli").toggle({ name = "gemini", focus = true })
+          require("sidekick.cli").toggle({ name = "grok", focus = true })
         end,
-        desc = "Sidekick Gemini Toggle",
+        desc = "Sidekick Grok Toggle",
         mode = { "n", "v" },
       },
       {
@@ -120,6 +130,3 @@ return {
     end,
   },
 }
-
-
-
